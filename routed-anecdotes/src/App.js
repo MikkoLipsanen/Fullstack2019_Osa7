@@ -21,10 +21,26 @@ const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
     <ul>
-      {anecdotes.map(anecdote => <li key={anecdote.id} >{anecdote.content}</li>)}
-    </ul>
+      {anecdotes.map(anecdote =>
+        <li key={anecdote.id}>
+          <Link to={`/anecdote/${anecdote.id}`}>{anecdote.content}</Link>
+        </li>)}
+      </ul>
   </div>
 )
+
+const Anecdote = ({ anecdote }) => {
+  console.log(anecdote)
+  return (
+    <div>
+      <h2>{anecdote.content} by {anecdote.author}</h2>
+      <div>has {anecdote.votes} votes</div><br></br>
+      <div>for more info see &nbsp;
+        <a href={anecdote.info}>{anecdote.info}</a>
+      </div><br></br>
+    </div>
+  )
+}
 
 const About = () => (
   <div>
@@ -52,10 +68,11 @@ const CreateNew = (props) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
-
+  const [created, setCreated] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    setCreated(true)
     props.addNew({
       content,
       author,
@@ -64,10 +81,14 @@ const CreateNew = (props) => {
     })
   }
 
+  if(created){
+    return <Redirect to="/" /> 
+  }
+
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} >
         <div>
           content
           <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
@@ -78,13 +99,22 @@ const CreateNew = (props) => {
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
         </div>
         <button>create</button>
       </form>
     </div>
   )
+}
 
+const Notification = (props) => {
+  return (
+    <div>
+      <strong>
+        {props.notification}
+      </strong>
+    </div>
+  )
 }
 
 const App = () => {
@@ -110,10 +140,18 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = (Math.random() * 10000).toFixed(0)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification(`a new anecdote ${anecdote.content} created!`)
+    setTimeout(() => {
+      setNotification(null)
+    }, 10000)
   }
 
-  const anecdoteById = (id) =>
-    anecdotes.find(a => a.id === id)
+  const anecdoteById = (id) => {
+    console.log(id)
+    return(    
+      anecdotes.find(a => a.id === id)
+    )
+  }
 
   const vote = (id) => {
     const anecdote = anecdoteById(id)
@@ -130,16 +168,20 @@ const App = () => {
     <div>
       <Router>
         <div>
-        <h1>Software anecdotes</h1>
-        <Menu />
-        <div>
+          <h1>Software anecdotes</h1>
+          <Menu />
           <div>
-            <Route exact path="/" render={() => <AnecdoteList anecdotes={anecdotes} />} />
-            <Route exact path="/about" render={() =>< About />} />
-            <Route exact path="/create" render={() => <CreateNew addNew={addNew} />} />
+            <Notification notification={notification} />
+            <div>
+              <Route exact path="/" render={() => <AnecdoteList anecdotes={anecdotes} />} />
+              <Route exact path="/anecdote/:id" render={({ match }) =>
+                <Anecdote anecdote={anecdoteById(match.params.id)} />
+              } />
+              <Route exact path="/about" render={() => < About />} />
+              <Route exact path="/create" render={() => <CreateNew addNew={addNew} />} />
+            </div>
           </div>
-        </div>
-        <Footer />
+          <Footer />
         </div>
       </Router>
     </div>
