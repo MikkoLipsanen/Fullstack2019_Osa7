@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
+import BlogList from './components/BlogList'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import LoginForm from './components/LoginForm'
@@ -9,24 +9,18 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import  { useField } from './hooks/index.js'
 import { setNotification, clearNotification } from './reducers/notificationReducer'
-
+import { initializeBlogs } from './reducers/blogReducer'
 
 
 const App = (props) => {
-  const [blogs, setBlogs] = useState([])
   const username = useField('text')
   const password = useField('password')
-  const title = useField('text')
-  const author = useField('text')
-  const url = useField('text')
-  const likes = useField('text')
   const [user, setUser] = useState(null)
  
+
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    )
-  }, [])
+    props.initializeBlogs()
+  },[])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -36,46 +30,6 @@ const App = (props) => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: title.value,
-      author: author.value,
-      url: url.value,
-      likes: likes.value
-    }
-
-    blogService
-      .create(blogObject).then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        title.reset()
-        author.reset()
-        url.reset()
-        likes.reset()
-        props.setNotification(`A new blog ${returnedBlog.title} by 
-        ${returnedBlog.author} added`)
-      })
-      .catch(error => {
-        props.setNotification('Blog creation failed', 'error')
-      })
-  }
-
-  const deleteBlog = (id) => {
-    const blog = blogs.find(b => b.id === id)
-    const ok = window.confirm(`Remove blog ${blog.title} ${blog.author}`)
-    if (ok) {
-      blogService
-        .remove(id)
-        .then(() => {
-          setBlogs(blogs.filter(b => b.id !== id))
-          props.setNotification(`${blog.title} ${blog.author} was deleted`)
-        })
-        .catch(error => {
-          props.setNotification('Blog deletion failed', 'error')
-        })
-    }
-  }
 
   const handleLogin = async (event) => {
     const uName = username.value
@@ -106,30 +60,6 @@ const App = (props) => {
     props.setNotification(`${user.name} logged out`)
   }
 
-  const addLike = id => {
-    const blog = blogs.find(b => b.id === id)
-    
-    const changedBlog = {
-      ...blog,
-      likes: blog.likes + 1,
-    }
-
-    blogService
-      .update(changedBlog.id, changedBlog).then(returnedBlog => {
-        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
-      })
-  }
-
-  const rows = () => [...blogs]
-    .sort((a, b) => b.likes - a.likes)
-    .map(blog =>
-      <Blog
-        key={blog.id}
-        blog={blog}
-        addLike={() => addLike(blog.id)}
-        remove={() => deleteBlog(blog.id)}
-      />
-    )
   
   return (
     <div>
@@ -149,16 +79,10 @@ const App = (props) => {
           <p>{user.name} logged in</p>
           <button onClick={handleLogout}>logout </button>
           <Togglable buttonLabel="new blog">
-            <BlogForm
-              addBlog={addBlog}
-              title={title.propsHook}
-              author={author.propsHook}
-              url={url.propsHook}
-              likes={likes.propsHook}
-            />
+            <BlogForm/>
           </Togglable>
           <ul>
-            {rows()}
+            <BlogList/>
           </ul>
         </div>
       }
@@ -166,4 +90,4 @@ const App = (props) => {
   )
 }
 
-export default connect(null, { setNotification, clearNotification })(App)
+export default connect(null, { setNotification, clearNotification, initializeBlogs })(App)

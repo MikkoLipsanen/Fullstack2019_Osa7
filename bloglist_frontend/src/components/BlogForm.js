@@ -1,36 +1,53 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import { createBlog } from '../reducers/blogReducer'
+import { setNotification, clearNotification } from '../reducers/notificationReducer'
 
-const BlogForm = ({ addBlog, title, author, url, likes }) => (
-  <div>
-    <form onSubmit={addBlog}>
-      <div>
-        title: 
-        <input {...title} />
-      </div>
-      <div> 
-        author: 
-        <input {...author} />
-      </div>
-      <div> 
-        url: 
-        <input {...url} />
-      </div>
-      <div> 
-        likes: 
-        <input {...likes} />
-      </div>
-      <button type="submit">create</button>
-    </form>  
-  </div>
-)
 
-BlogForm.propTypes = {
-  addBlog: PropTypes.func.isRequired,
-  title: PropTypes.object.isRequired,
-  author: PropTypes.object.isRequired,
-  url: PropTypes.object.isRequired,
-  likes: PropTypes.object.isRequired,
+const BlogForm = (props) => {
+
+  const create = async (event) => {
+    event.preventDefault()
+    const blogObject = {
+      title: event.target.title.value ,
+      author: event.target.author.value ,
+      url: event.target.url.value ,
+      likes: event.target.likes.value 
+    }
+    event.target.title.value = ''
+    event.target.author.value = ''
+    event.target.url.value = ''
+    event.target.likes.value = ''
+    props.createBlog(blogObject)
+    props.setNotification(`A new blog ${blogObject.title} by 
+    ${blogObject.author} added`)
+  }
+
+  return(
+    <div>
+      <form onSubmit={create}>
+        <div>
+          title: 
+          <input name='title' />
+        </div>
+        <div> 
+          author: 
+          <input name='author' />
+        </div>
+        <div> 
+          url: 
+          <input name='url' />
+        </div>
+        <div> 
+          likes: 
+          <input name='likes'/>
+        </div>
+        <button>create</button>
+      </form>  
+    </div>
+  )
 }
 
-export default BlogForm
+export default connect(null, {
+  createBlog, setNotification, clearNotification
+})(BlogForm)
