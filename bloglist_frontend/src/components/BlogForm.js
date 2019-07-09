@@ -48,6 +48,12 @@ const BlogForm = (props) => {
   )
 }
 
-export default connect(null, {
-  createBlog, setNotification, clearNotification
-})(BlogForm)
+const mapDispatchToProps = {
+  createBlog, 
+  setNotification, 
+  clearNotification,
+}
+export default connect(
+  null,
+  mapDispatchToProps  
+)(BlogForm)

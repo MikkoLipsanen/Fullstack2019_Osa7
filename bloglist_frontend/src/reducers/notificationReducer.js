@@ -8,7 +8,6 @@ const reducer = (state = '', action) => {
 }
   
 export const setNotification = (content) => {
-  console.log(content)
   return (dispatch) => {
     dispatch({
       type: 'SET_NOTIFICATION',
