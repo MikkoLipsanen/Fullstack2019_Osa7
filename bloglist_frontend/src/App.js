@@ -5,6 +5,7 @@ import BlogList from './components/BlogList'
 import LoginForm from './components/LoginForm'
 import Logout from './components/Logout'
 import UserList from './components/UserList'
+import User from './components/User'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import { setNotification, clearNotification } from './reducers/notificationReducer'
@@ -27,11 +28,14 @@ const App = (props) => {
 
   useEffect(() => {
     props.initializeUsers()
-  },[])
+  })
 
   useEffect(() => {
     props.setUser()
   }, [])
+
+  const userById = (id) =>
+    props.users.find(user => user.id === id)
   
   return (
     <div>
@@ -56,14 +60,14 @@ const App = (props) => {
               </div>
               : <Redirect to="/login" />
           } />
-          <Route path="/users" render={() => 
+          <Route exact path="/users" render={() => 
             props.user ? <UserList /> : <Redirect to="/login" />
+          } />
+          <Route exact path="/users/:id" render={({ match }) =>
+            <User user={userById(match.params.id)} />
           } />
           <Route path="/login" render={() =>
             props.user ? <Redirect to="/blogs" /> : <LoginForm /> 
-            /*<div>
-              <LoginForm />
-            </div>*/
           } />
         </div>
       </Router>
@@ -74,6 +78,7 @@ const App = (props) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
+    users: state.users,
   }
 }
 
