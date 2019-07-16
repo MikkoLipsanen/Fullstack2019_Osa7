@@ -2,6 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
 import { logoutUser } from '../reducers/userReducer'
+import { Redirect } from 'react-router-dom'
+
 
 const Logout = (props) => { 
 
@@ -13,8 +15,17 @@ const Logout = (props) => {
 
   return(
     <div>
-      <p>{props.user.username} logged in</p>
-      <button onClick={handleLogout}>logout </button>
+      {props.user
+        ? 
+        <div>
+          <br/>
+          <em>{props.user.username} logged in</em>
+          <br/>
+          <br/>
+          <button onClick={handleLogout}>logout </button>
+        </div>
+        : <Redirect to="/login" />
+      }
     </div>
   )
 }

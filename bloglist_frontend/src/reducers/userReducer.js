@@ -2,7 +2,7 @@ import blogService from '../services/blogs'
 
 const reducer = (state = null, action) => {
   switch (action.type) {
-  case 'SET_USER':
+  case 'LOGIN_USER':
     const token = action.data.token
     blogService.setToken(token)   
     return action.data
@@ -19,7 +19,7 @@ export const setUser = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       dispatch({
-        type: 'SET_USER',
+        type: 'LOGIN_USER',
         data: user,
       })
     }

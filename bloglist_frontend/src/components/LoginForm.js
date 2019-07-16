@@ -23,13 +23,16 @@ const LoginForm = (props) => {
       props.setUser(user)
       props.setNotification(`${user.username} logged in`)
     } catch (exception) {
+      console.log(exception)
       props.setNotification('Wrong username or password')
     }
+    document.getElementById('login_form').reset()
   }
 
   return(
     <div>
-      <form onSubmit={handleLogin}>
+      <h2>Log in to application</h2>
+      <form id="login_form" onSubmit={handleLogin}>
         <div>
           käyttäjätunnus
           <input type="text" name='username'/>
