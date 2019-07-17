@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import BlogForm from './components/BlogForm'
 import BlogList from './components/BlogList'
+import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import Logout from './components/Logout'
 import UserList from './components/UserList'
@@ -28,7 +29,7 @@ const App = (props) => {
 
   useEffect(() => {
     props.initializeUsers()
-  })
+  }, [])
 
   useEffect(() => {
     props.setUser()
@@ -36,6 +37,9 @@ const App = (props) => {
 
   const userById = (id) =>
     props.users.find(user => user.id === id)
+  
+  const blogById = (id) =>
+    props.blogs.find(blog => blog.id === id)
   
   return (
     <div>
@@ -47,7 +51,7 @@ const App = (props) => {
             <Logout />
             <Notification />
           </div>
-          <Route path="/blogs" render={() =>
+          <Route exact path="/blogs" render={() =>
             props.user ?
               <div>
                 <h2>blogs</h2>
@@ -59,6 +63,9 @@ const App = (props) => {
                 </ul>
               </div>
               : <Redirect to="/login" />
+          } />
+          <Route exact path="/blogs/:id" render={({ match }) =>
+            <Blog blog={blogById(match.params.id)} />
           } />
           <Route exact path="/users" render={() => 
             props.user ? <UserList /> : <Redirect to="/login" />
@@ -79,6 +86,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     users: state.users,
+    blogs: state.blogs,
   }
 }
 

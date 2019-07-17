@@ -1,47 +1,62 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
+import { connect } from 'react-redux'
+import { addLike, deleteBlog } from '../reducers/blogReducer'
+import { setNotification } from '../reducers/notificationReducer'
 
-const Blog = ({ blog, addLike, remove }) => {
-  const [show, setShow] = useState(false)
-
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+const Blog = (props) => {
+  if ( props.blog === undefined) { 
+    return null
+  }
+  
+  console.log(props.blog.title)
+  const like = () => {
+    props.addLike(props.blog)
+    props.setNotification(`you liked '${props.blog.title}'`)
   }
 
-
+  const deleteB = () => {
+    const ok = window.confirm(`Remove blog ${props.blog.title} ${props.blog.author}`)
+    if (ok) {
+      props.deleteBlog(props.blog.id)
+      props.setNotification(`${props.blog.title} ${props.blog.author} was deleted`)
+    }
+  }
 
   return (
-    <div style={blogStyle} className='blog'>
-      <div onClick={() => setShow(!show)}>
-        {blog.title} {blog.author}
-        {show && <div>
-          <a href={blog.url}>{blog.url}</a>
-          <br />
-          <p>{blog.likes} likes</p>
-          <button onClick={(event) => {
-            event.stopPropagation()
-            addLike(blog.id)
-          }}>like </button>
-          <br />
-          <p>added by {blog.user.name}</p>
-          <button onClick={(event) => {
-            event.stopPropagation()
-            remove(blog.id)
-          }}>remove</button>
-        </div>}
-      </div>
+    <div>
+      <h2>{props.blog.title}{' '}{props.blog.author}</h2>
+      <br/>
+      <a href={props.blog.url}>{props.blog.url}</a>
+      <br />
+      <p>{props.blog.likes} likes</p>
+      <button onClick={(event) => {
+        event.stopPropagation()
+        like()
+      }}>like </button>
+      <br />
+      <p>added by {props.blog.user.name}</p>
+      <button onClick={(event) => {
+        event.stopPropagation()
+        deleteB()
+      }}>remove</button>
     </div>
   )
 }
 
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  addLike: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired
+const mapStateToProps = (state, props) => {
+  return {
+    blogs: state.blogs,
+    blog: props.blog,
+  }
 }
 
-export default Blog
+const mapDispatchToProps = {
+  setNotification,
+  addLike,
+  deleteBlog, 
+}
+
+export default connect(
+  mapStateToProps, 
+  mapDispatchToProps
+)(Blog)
